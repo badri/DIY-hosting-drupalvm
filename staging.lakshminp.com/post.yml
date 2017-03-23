@@ -1,0 +1,21 @@
+---
+- name: "{{ drupal_domain }} | Install Drupal with drush."
+  command: >
+    {{ drush_path }} site-install {{ drupal_install_profile | default('standard') }} -y
+    --site-name="{{ drupal_site_name }}"
+    --account-name={{ drupal_account_name }}
+    --account-pass={{ drupal_account_pass }}
+    --db-url={{ drupal_db_backend }}://{{ drupal_db_user }}:{{ drupal_db_password }}@localhost/{{ drupal_db_name }}
+    {{ drupal_site_install_extra_args | default([]) | join(" ") }}
+    -r {{ drupal_core_path }}
+  when: db_snapshot is undefined and not drupal_install_site
+  
+- include: "{{config_dir }}/install-from-db.yml"
+  when: db_snapshot is defined
+  static: no
+
+- name: "{{ drupal_domain }} | list all installed modules."
+  command: >
+    {{ drush_path }} pm-list
+    -r {{ drupal_core_path }}
+    

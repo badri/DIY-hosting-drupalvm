@@ -1,0 +1,27 @@
+---
+drupal_domain: "example-site1.com"
+
+drupalvm_webserver: nginx
+
+nginx_hosts:
+  - server_name: "{{ drupal_domain }} www.{{ drupal_domain }}"
+    root: "{{ drupal_core_path }}"
+    is_php: true
+
+drupal_major_version: 8
+drupal_build_composer_project: false
+
+firewall_allowed_tcp_ports:
+  - "22"
+  - "80"
+firewall_log_dropped_packets: true
+
+drupal_account_pass: admin
+drupal_db_password: drupal
+mysql_root_password: root
+
+installed_extras:
+  - drush
+  - drupalconsole
+
+pre_provision_tasks_dir: '{{config_dir }}/pre.yml'

@@ -1,0 +1,41 @@
+---
+drupal_domain: "staging.lakshminp.com"
+
+apache_vhosts:
+  - servername: "{{ drupal_domain }}"
+    documentroot: "{{ drupal_core_path }}"
+    extra_parameters: |
+          ProxyPassMatch ^/(.*\.php(/.*)?)$ "fcgi://127.0.0.1:9000{{ drupal_core_path }}"
+
+drupal_major_version: 7
+php_version: "5.6"
+drupal_account_pass: admin
+drupal_db_password: drupal
+mysql_root_password: root
+
+installed_extras:
+  - drush
+  
+
+# Disable the dashboard page. Also remove any unneeded virtualhosts.
+dashboard_install_dir: ''
+
+firewall_allowed_tcp_ports:
+  - "22"
+  - "80"
+
+firewall_log_dropped_packets: true
+
+php_webserver_daemon: apache2
+drupal_install_site: false
+drupal_build_composer_project: false
+
+# pre and post provision hooks
+pre_provision_tasks_dir: '{{config_dir }}/pre.yml'
+post_provision_tasks_dir: '{{config_dir }}/post.yml'
+
+# custom stuff
+git_repo: 'git@gitlab.com:badri1/lakshminp.git'
+git_branch: 'master'
+db_snapshot: 'https://s3.amazonaws.com/drupaldbexports/db-03-20-2017.sql.gz'
+prod_url: "https://lakshminp.com"

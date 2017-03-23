@@ -1,0 +1,12 @@
+---
+- name: "{{ drupal_domain }} | Install dependencies"
+  apt: pkg={{ item }} state=installed
+  with_items:
+    - python3-mysqldb
+    - git
+
+- name: "{{ drupal_domain }} | Clone repo"
+  git: repo={{ git_repo }}
+       version={{ git_branch }}
+       dest={{ drupal_core_path }}
+       accept_hostkey=yes

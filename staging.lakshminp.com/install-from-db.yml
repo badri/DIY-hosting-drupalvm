@@ -1,0 +1,38 @@
+---
+# Not using unarchive module due to https://github.com/ansible/ansible/issues/21951.
+- name: "{{ drupal_domain }} | Download DB snapshot"
+  get_url:
+    url: "{{ db_snapshot }}"
+    dest: /tmp/db.sql.gz
+    
+- name: "{{ drupal_domain }} | Unarchive DB snapshot"
+  shell: >
+    gunzip -c /tmp/db.sql.gz > /tmp/db.sql
+    
+- name: "{{ drupal_domain }} | Install from a DB snapshot"
+  shell: >
+    {{ drush_path }} sql-cli < /tmp/db.sql
+    -r {{ drupal_core_path }}
+  notify: restart webserver
+
+- name: "{{ drupal_domain }} | Create files directory"
+  file:
+    path: "{{ drupal_core_path }}/sites/default/files"
+    state: directory
+    group: www-data
+    mode: 2775
+
+- name: "{{ drupal_domain }} | Enable stage file proxy"
+  command: >
+    {{ drush_path }} en stage_file_proxy -y
+    -r {{ drupal_core_path }}
+
+- name: "{{ drupal_domain }} | Set origin url"
+  command: >
+    {{ drush_path }} vset stage_file_proxy_origin "{{ prod_url }}"
+    -r {{ drupal_core_path }}
+
+- name: "{{ drupal_domain }} | Clear cache"
+  command: >
+    {{ drush_path }} cc all
+    -r {{ drupal_core_path }}
